@@ -1,0 +1,30 @@
+# Node.js
+node_modules/
+.env
+*.log
+npm-debug.log*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Linux/macOS
+*.swp
+
+# Backend
+backend/node_modules/
+backend/*.log
+
+# Frontend
+frontend/node_modules/
+
+# Build 
+dist/
+build/
+
+# IDE & backups
+*.bak
+*.tmp
