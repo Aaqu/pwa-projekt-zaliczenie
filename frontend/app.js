@@ -21,6 +21,7 @@ function renderTransactions() {
   });
 
   renderBudgetInfo();
+  renderChart();
 }
 
 function deleteTransaction(index) {
@@ -68,5 +69,53 @@ function renderBudgetInfo() {
     budgetInfo.className = '';
   }
 }
+let expenseChart = null;
+
+function renderChart() {
+  const ctx = document.getElementById('expenseChart').getContext('2d');
+
+  const expenseData = {};
+  transactions
+    .filter(t => t.type === 'expense')
+    .forEach(t => {
+      if (expenseData[t.description]) {
+        expenseData[t.description] += t.amount;
+      } else {
+        expenseData[t.description] = t.amount;
+      }
+    });
+
+  const labels = Object.keys(expenseData);
+  const data = Object.values(expenseData);
+
+  if (expenseChart) {
+    expenseChart.destroy(); // usuń stary wykres, jeśli istnieje
+  }
+
+  expenseChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Expenses',
+        data: data,
+        backgroundColor: [
+          '#e74c3c', '#f1c40f', '#2ecc71', '#3498db',
+          '#9b59b6', '#1abc9c', '#e67e22', '#34495e'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+}
+
 
 renderTransactions();
