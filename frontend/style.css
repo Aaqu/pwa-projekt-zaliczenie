@@ -1,0 +1,74 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f4f6f8;
+  color: #333;
+}
+
+.container {
+  max-width: 400px;
+  margin: 30px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #2c3e50;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input, select, button {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+button {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: #219150;
+}
+
+h2 {
+  margin-top: 30px;
+  font-size: 20px;
+}
+
+ul#transaction-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul#transaction-list li {
+  background: #ecf0f1;
+  margin: 8px 0;
+  padding: 10px 15px;
+  border-left: 6px solid #27ae60;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+ul#transaction-list li.expense {
+  border-left-color: #c0392b;
+}
