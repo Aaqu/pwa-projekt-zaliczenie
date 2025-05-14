@@ -1,20 +1,33 @@
 const form = document.getElementById('transaction-form');
 const list = document.getElementById('transaction-list');
+const budgetForm = document.getElementById('budget-form');
+const budgetInput = document.getElementById('budget-amount');
+const budgetInfo = document.getElementById('budget-info');
 
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+let budget = parseFloat(localStorage.getItem('budget')) || 0;
 
 function renderTransactions() {
   list.innerHTML = '';
-  transactions.forEach((tx) => {
+  transactions.forEach((tx, index) => {
     const li = document.createElement('li');
-    li.textContent = `${tx.type.toUpperCase()}: ${tx.description} - ${tx.amount.toFixed(2)} PLN`;
-    li.classList.add(tx.type === 'income' ? 'income' : 'expense');
+    li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+    li.classList.add(tx.type === 'income' ? 'list-group-item-success' : 'list-group-item-danger');
+    li.innerHTML = `
+      ${tx.type.toUpperCase()}: ${tx.description} - ${tx.amount.toFixed(2)} PLN
+      <button class="btn btn-sm btn-outline-dark ms-3" onclick="deleteTransaction(${index})">🗑</button>
+    `;
     list.appendChild(li);
   });
 
   renderBudgetInfo();
 }
 
+function deleteTransaction(index) {
+  transactions.splice(index, 1);
+  localStorage.setItem('transactions', JSON.stringify(transactions));
+  renderTransactions();
+}
 
 form.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -28,12 +41,6 @@ form.addEventListener('submit', (e) => {
   renderTransactions();
   form.reset();
 });
-
-const budgetForm = document.getElementById('budget-form');
-const budgetInput = document.getElementById('budget-amount');
-const budgetInfo = document.getElementById('budget-info');
-
-let budget = parseFloat(localStorage.getItem('budget')) || 0;
 
 budgetForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -50,12 +57,11 @@ function renderBudgetInfo() {
 
   if (budget > 0) {
     budgetInfo.textContent = `Spent ${totalExpenses.toFixed(2)} / ${budget.toFixed(2)} PLN`;
-
     if (totalExpenses > budget) {
-      budgetInfo.className = 'budget-exceeded';
+      budgetInfo.className = 'text-danger fw-bold';
       budgetInfo.textContent += ' – Budget exceeded!';
     } else {
-      budgetInfo.className = 'budget-ok';
+      budgetInfo.className = 'text-success fw-bold';
     }
   } else {
     budgetInfo.textContent = 'No budget set';
