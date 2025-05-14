@@ -54,6 +54,7 @@ h2 {
   font-size: 20px;
 }
 
+/* transaction list styles */
 ul#transaction-list {
   list-style: none;
   padding: 0;
@@ -71,4 +72,19 @@ ul#transaction-list li {
 
 ul#transaction-list li.expense {
   border-left-color: #c0392b;
+}
+
+/* budget styles */
+
+#budget-info {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.budget-ok {
+  color: #27ae60;
+}
+
+.budget-exceeded {
+  color: #c0392b;
 }
