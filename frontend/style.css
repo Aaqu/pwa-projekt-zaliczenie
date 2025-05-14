@@ -24,31 +24,6 @@ h1 {
   color: #2c3e50;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-input, select, button {
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  font-size: 16px;
-}
-
-button {
-  background-color: #27ae60;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s ease-in-out;
-}
-
-button:hover {
-  background-color: #219150;
-}
-
 h2 {
   margin-top: 30px;
   font-size: 20px;
@@ -87,4 +62,10 @@ ul#transaction-list li.expense {
 
 .budget-exceeded {
   color: #c0392b;
+}
+
+#expenseChart {
+  max-width: 400px;
+  max-height: 400px;
+  margin: 0 auto;
 }
