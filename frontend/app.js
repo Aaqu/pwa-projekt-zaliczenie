@@ -123,19 +123,16 @@ let expenseChart = null;
 function renderChart() {
   const ctx = document.getElementById('expenseChart').getContext('2d');
 
-  const expenseData = {};
-  transactions
-    .filter(t => t.type === 'expense')
-    .forEach(t => {
-      if (expenseData[t.description]) {
-        expenseData[t.description] += t.amount;
-      } else {
-        expenseData[t.description] = t.amount;
-      }
-    });
+  const totalIncome = transactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
 
-  const labels = Object.keys(expenseData);
-  const data = Object.values(expenseData);
+  const totalExpenses = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const labels = ['Income', 'Expenses'];
+  const data = [totalIncome, totalExpenses];
 
   if (data.length === 0) return;
 
