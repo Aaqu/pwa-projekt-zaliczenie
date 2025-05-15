@@ -15,7 +15,7 @@ function renderTransactions() {
     li.classList.add(tx.type === 'income' ? 'list-group-item-success' : 'list-group-item-danger');
     li.innerHTML = `
       ${tx.type.toUpperCase()}: ${tx.description} - ${tx.amount.toFixed(2)} PLN
-      <button class="btn btn-sm btn-outline-dark ms-3" onclick="deleteTransaction(${index})">🗑</button>
+      <button class="btn btn-sm btn-outline-dark ms-3" onclick="deleteTransaction('${tx._id}')">🗑</button>
     `;
     list.appendChild(li);
   });
@@ -24,11 +24,17 @@ function renderTransactions() {
   renderChart();
 }
 
-function deleteTransaction(index) {
-  transactions.splice(index, 1);
-  localStorage.setItem('transactions', JSON.stringify(transactions));
-  renderTransactions();
+function deleteTransaction(id) {
+  fetch(`http://localhost:3000/transactions/${id}`, {
+    method: 'DELETE'
+  }).then(() => {
+    // delete from localstorage
+    transactions = transactions.filter(tx => tx._id !== id);
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    renderTransactions();
+  });
 }
+
 
 form.addEventListener('submit', (e) => {
   e.preventDefault();

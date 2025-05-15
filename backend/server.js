@@ -32,12 +32,14 @@ mongoose.connect(mongoUri, {
 });
 
 // Data model
-const Transaction = mongoose.model('Transaction', {
+const transactionSchema = new mongoose.Schema({
   description: String,
   amount: Number,
   type: String,
   date: String
 });
+
+const Transaction = mongoose.model('Transaction', transactionSchema);
 
 // Subscriptions
 let subscriptions = [];
@@ -69,6 +71,12 @@ app.post('/notify', async (req, res) => {
     webpush.sendNotification(sub, payload).catch(console.error);
   });
 
+  res.sendStatus(200);
+});
+
+app.delete('/transactions/:id', async (req, res) => {
+  const id = req.params.id;
+  await Transaction.findByIdAndDelete(id);
   res.sendStatus(200);
 });
 
