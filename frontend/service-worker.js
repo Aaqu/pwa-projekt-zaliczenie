@@ -1,12 +1,11 @@
 const CACHE_NAME = 'finance-tracker-v1';
 const FILES_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/app.js',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/frontend/index.html',
+  '/frontend/style.css',
+  '/frontend/app.js',
+  '/frontend/manifest.json',
+  '/frontend/icons/icon-192.png',
+  '/frontend/icons/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
