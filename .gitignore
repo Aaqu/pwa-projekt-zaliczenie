@@ -28,3 +28,6 @@ build/
 # IDE & backups
 *.bak
 *.tmp
+
+*.tar
+.idea
