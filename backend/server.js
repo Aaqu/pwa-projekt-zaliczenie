@@ -1,9 +1,9 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const webpush = require('web-push');
-const cors = require('cors');
+import 'dotenv/config'
+import express from 'express';
+import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import webpush from 'web-push';
+import cors from 'cors';
 
 const app = express();
 const PORT = 3000;
@@ -72,7 +72,7 @@ app.post('/notify', async (req, res) => {
   res.sendStatus(200);
 });
 
-// Start serwer
+// Start server
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
 });
