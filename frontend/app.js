@@ -4,7 +4,7 @@ const budgetForm = document.getElementById('budget-form');
 const budgetInput = document.getElementById('budget-amount');
 const budgetInfo = document.getElementById('budget-info');
 
-let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+let transactions = [];
 let budget = parseFloat(localStorage.getItem('budget')) || 0;
 
 function renderTransactions() {
@@ -169,5 +169,15 @@ function urlBase64ToUint8Array(base64String) {
   }
   return outputArray;
 }
+function loadTransactionsFromBackend() {
+  fetch('http://localhost:3000/transactions')
+    .then(response => response.json())
+    .then(data => {
+      transactions = data;
+      localStorage.setItem('transactions', JSON.stringify(transactions)); // opcjonalne cache
+      renderTransactions();
+    })
+    .catch(err => console.error('Błąd pobierania danych z backendu:', err));
+}
 
-renderTransactions();
+loadTransactionsFromBackend();
