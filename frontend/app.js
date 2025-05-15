@@ -4,12 +4,15 @@ const budgetForm = document.getElementById('budget-form');
 const budgetInput = document.getElementById('budget-amount');
 const budgetInfo = document.getElementById('budget-info');
 
-let transactions = [];
+let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 let budget = parseFloat(localStorage.getItem('budget')) || 0;
+
+loadBudgetFromBackend();
+loadTransactionsFromBackend();
 
 function renderTransactions() {
   list.innerHTML = '';
-  transactions.forEach((tx, index) => {
+  transactions.forEach((tx) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
     li.classList.add(tx.type === 'income' ? 'list-group-item-success' : 'list-group-item-danger');
@@ -25,15 +28,19 @@ function renderTransactions() {
 }
 
 function deleteTransaction(id) {
-  fetch(`http://localhost:3000/transactions/${id}`, {
-    method: 'DELETE'
-  }).then(() => {
-    // delete from localstorage
-    transactions = transactions.filter(tx => tx._id !== id);
-    localStorage.setItem('transactions', JSON.stringify(transactions));
-    renderTransactions();
-  });
+  transactions = transactions.filter(tx => tx._id !== id);
+  localStorage.setItem('transactions', JSON.stringify(transactions));
+  renderTransactions();
+
+  if (navigator.onLine) {
+    fetch(`http://localhost:3000/transactions/${id}`, {
+      method: 'DELETE'
+    }).catch(err => console.error('Błąd usuwania z MongoDB:', err));
+  } else {
+    console.warn('Jesteś offline - usunięto tylko lokalnie');
+  }
 }
+
 
 
 form.addEventListener('submit', (e) => {
@@ -49,18 +56,29 @@ form.addEventListener('submit', (e) => {
     date: new Date().toISOString()
   };
 
-  // save in local storage
-  transactions.push(transaction);
-  localStorage.setItem('transactions', JSON.stringify(transactions));
-  renderTransactions();
-  form.reset();
-
-  // send to DB
-  fetch('http://localhost:3000/transactions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(transaction)
-  }).catch(err => console.error('Error while saveing transaction in database:', err));
+  if (navigator.onLine) {
+    fetch('http://localhost:3000/transactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(transaction)
+    })
+    .then(res => res.json())
+    .then(savedTx => {
+      transactions.push(savedTx);
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+      renderTransactions();
+      form.reset();
+    })
+    .catch(err => {
+      console.error('Błąd zapisu do MongoDB:', err);
+    });
+  } else {
+    console.warn('Jesteś offline - transakcja zapisana tylko lokalnie');
+    transactions.push(transaction);
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    renderTransactions();
+    form.reset();
+  }
 });
 
 budgetForm.addEventListener('submit', (e) => {
@@ -71,7 +89,9 @@ budgetForm.addEventListener('submit', (e) => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ amount: budget })
-  }).then(() => {
+  })
+  .catch(err => console.error('Błąd zapisu do MongoDB:', err))
+  .then(() => {
     localStorage.setItem('budget', budget);
     renderBudgetInfo();
     budgetForm.reset();
@@ -117,8 +137,10 @@ function renderChart() {
   const labels = Object.keys(expenseData);
   const data = Object.values(expenseData);
 
+  if (data.length === 0) return;
+
   if (expenseChart) {
-    expenseChart.destroy(); // usuń stary wykres, jeśli istnieje
+    expenseChart.destroy();
   }
 
   expenseChart = new Chart(ctx, {
@@ -184,27 +206,53 @@ function urlBase64ToUint8Array(base64String) {
   }
   return outputArray;
 }
+
 function loadTransactionsFromBackend() {
-  fetch('http://localhost:3000/transactions')
+  if (!navigator.onLine) {
+    console.warn('Brak internetu - dane z localStorage');
+    renderTransactions();
+  } else {
+    fetch('http://localhost:3000/transactions')
     .then(response => response.json())
     .then(data => {
       transactions = data;
-      localStorage.setItem('transactions', JSON.stringify(transactions)); // opcjonalne cache
+      localStorage.setItem('transactions', JSON.stringify(transactions));
       renderTransactions();
     })
-    .catch(err => console.error('Błąd pobierania danych z backendu:', err));
+    .catch(err => {
+      console.error('Błąd pobierania z backendu:', err);
+      renderTransactions(); //fallback
+    });
+  }
+
 }
 
 function loadBudgetFromBackend() {
-  fetch('http://localhost:3000/budget')
-    .then(res => res.json())
-    .then(data => {
-      budget = data.amount;
-      localStorage.setItem('budget', budget); // opcjonalne cache
-      renderBudgetInfo();
-    });
+  if (!navigator.onLine) {
+    console.warn('Offline - budżet z localStorage');
+    budget = parseFloat(localStorage.getItem('budget')) || 0;
+    renderBudgetInfo();
+  } else {
+    fetch('http://localhost:3000/budget')
+      .then(res => res.json())
+      .then(data => {
+        budget = data.amount;
+        localStorage.setItem('budget', budget);
+        renderBudgetInfo();
+      })
+      .catch(err => {
+        console.error('Błąd pobierania budżetu:', err);
+        renderBudgetInfo();
+      });
+  }
 }
 
-loadBudgetFromBackend();
+window.addEventListener('online', () => {
+  console.log('Połączono z internetem – odświeżam dane z serwera');
+  loadBudgetFromBackend();
+  loadTransactionsFromBackend();
+});
 
-loadTransactionsFromBackend();
+window.addEventListener('offline', () => {
+  console.warn('Utracono połączenie – korzystasz z danych lokalnych');
+});

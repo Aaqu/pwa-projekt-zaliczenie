@@ -11,7 +11,7 @@ body {
 }
 
 .container {
-  max-width: 400px;
+  max-width: 960px;
   margin: 30px auto;
   background: #fff;
   padding: 20px;
@@ -54,14 +54,6 @@ ul#transaction-list li.expense {
 #budget-info {
   font-weight: bold;
   margin-top: 10px;
-}
-
-.budget-ok {
-  color: #27ae60;
-}
-
-.budget-exceeded {
-  color: #c0392b;
 }
 
 #expenseChart {

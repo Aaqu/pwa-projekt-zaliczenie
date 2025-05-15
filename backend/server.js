@@ -53,8 +53,8 @@ let subscriptions = [];
 // Endpoints API
 app.post('/transactions', async (req, res) => {
   const tx = new Transaction(req.body);
-  await tx.save();
-  res.sendStatus(201);
+  const saved = await tx.save();
+  res.status(201).json(saved);
 });
 
 app.get('/transactions', async (req, res) => {
