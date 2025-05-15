@@ -88,6 +88,8 @@ function renderBudgetInfo() {
     if (totalExpenses > budget) {
       budgetInfo.className = 'text-danger fw-bold';
       budgetInfo.textContent += ' – Budget exceeded!';
+
+      fetch('http://localhost:3000/notify', { method: 'POST' });
     } else {
       budgetInfo.className = 'text-success fw-bold';
     }

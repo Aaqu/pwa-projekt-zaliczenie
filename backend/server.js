@@ -63,7 +63,13 @@ app.get('/transactions', async (req, res) => {
 });
 
 app.post('/subscribe', (req, res) => {
-  subscriptions.push(req.body);
+  const isAlreadySubscribed = subscriptions.some(
+    (sub) => sub.endpoint === req.body.endpoint
+  );
+
+  if (!isAlreadySubscribed) {
+    subscriptions.push(req.body);
+  }
   res.sendStatus(201);
 });
 
