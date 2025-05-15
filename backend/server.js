@@ -41,6 +41,12 @@ const transactionSchema = new mongoose.Schema({
 
 const Transaction = mongoose.model('Transaction', transactionSchema);
 
+const budgetSchema = new mongoose.Schema({
+  amount: Number
+});
+
+const Budget = mongoose.model('Budget', budgetSchema);
+
 // Subscriptions
 let subscriptions = [];
 
@@ -77,6 +83,23 @@ app.post('/notify', async (req, res) => {
 app.delete('/transactions/:id', async (req, res) => {
   const id = req.params.id;
   await Transaction.findByIdAndDelete(id);
+  res.sendStatus(200);
+});
+
+app.get('/budget', async (req, res) => {
+  const budget = await Budget.findOne();
+  res.json(budget || { amount: 0 });
+});
+
+app.post('/budget', async (req, res) => {
+  const existing = await Budget.findOne();
+  if (existing) {
+    existing.amount = req.body.amount;
+    await existing.save();
+  } else {
+    const budget = new Budget({ amount: req.body.amount });
+    await budget.save();
+  }
   res.sendStatus(200);
 });
 

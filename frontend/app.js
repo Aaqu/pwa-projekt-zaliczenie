@@ -66,9 +66,16 @@ form.addEventListener('submit', (e) => {
 budgetForm.addEventListener('submit', (e) => {
   e.preventDefault();
   budget = parseFloat(budgetInput.value);
-  localStorage.setItem('budget', budget);
-  renderBudgetInfo();
-  budgetForm.reset();
+
+  fetch('http://localhost:3000/budget', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ amount: budget })
+  }).then(() => {
+    localStorage.setItem('budget', budget);
+    renderBudgetInfo();
+    budgetForm.reset();
+  });
 });
 
 function renderBudgetInfo() {
@@ -185,5 +192,17 @@ function loadTransactionsFromBackend() {
     })
     .catch(err => console.error('Błąd pobierania danych z backendu:', err));
 }
+
+function loadBudgetFromBackend() {
+  fetch('http://localhost:3000/budget')
+    .then(res => res.json())
+    .then(data => {
+      budget = data.amount;
+      localStorage.setItem('budget', budget); // opcjonalne cache
+      renderBudgetInfo();
+    });
+}
+
+loadBudgetFromBackend();
 
 loadTransactionsFromBackend();
