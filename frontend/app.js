@@ -36,11 +36,25 @@ form.addEventListener('submit', (e) => {
   const amount = parseFloat(document.getElementById('amount').value);
   const type = document.getElementById('type').value;
 
-  const transaction = { description, amount, type, date: new Date().toISOString() };
+  const transaction = {
+    description,
+    amount,
+    type,
+    date: new Date().toISOString()
+  };
+
+  // save in local storage
   transactions.push(transaction);
   localStorage.setItem('transactions', JSON.stringify(transactions));
   renderTransactions();
   form.reset();
+
+  // send to DB
+  fetch('http://localhost:3000/transactions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(transaction)
+  }).catch(err => console.error('Error while saveing transaction in database:', err));
 });
 
 budgetForm.addEventListener('submit', (e) => {
@@ -117,5 +131,43 @@ function renderChart() {
   });
 }
 
+if ('serviceWorker' in navigator && 'PushManager' in window) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(swReg => {
+      console.log('Service Worker zarejestrowany');
+
+      return swReg.pushManager.getSubscription()
+        .then(sub => {
+          if (sub === null) {
+            const vapidPublicKey = 'BE1d8uj_T8Am8YusGlelB_gkeeDgKALCoMiJl0_WXa0OehD-RHGT_LjbfAZbgNRsOSkRgU9bBD2l4aDYcbD1wbI';
+            const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
+            return swReg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: convertedKey
+            });
+          }
+          return sub;
+        });
+    })
+    .then(sub => {
+      fetch('http://localhost:3000/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sub)
+      });
+    })
+    .catch(console.error);
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
 
 renderTransactions();
